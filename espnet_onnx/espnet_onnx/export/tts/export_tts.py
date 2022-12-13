@@ -54,6 +54,7 @@ class TTSModelExport:
             tag_name = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         base_dir = self.cache_dir / tag_name.replace(' ', '-')
+        base_dir.mkdir(parents=True, exist_ok=True)
         export_dir = base_dir / 'full'
         export_dir.mkdir(parents=True, exist_ok=True)
 
@@ -169,6 +170,7 @@ class TTSModelExport:
             input_names=model.get_input_names(),
             output_names=model.get_output_names(),
             dynamic_axes=model.get_dynamic_axes(),
+            do_constant_folding=False
         )
         
         # export submodel if required
@@ -177,11 +179,13 @@ class TTSModelExport:
                 self._export_model(sm, verbose, path, enc_size)
 
     def _export_tts(self, model, path, verbose):
+        file_name = os.path.join(path, 'f{model.model_name}.onnx')
         if verbose:
             logging.info(f'TTS model is saved in {file_name}')
         self._export_model(model, verbose, path)
 
     def _export_vocoder(self, model, path, verbose):
+        file_name = os.path.join(path, 'f{model.model_name}.onnx')
         if verbose:
             logging.info(f'Vocoder model is saved in {file_name}')
         self._export_model(model, verbose, path)
@@ -200,5 +204,5 @@ class TTSModelExport:
                 op_types_to_quantize=['Attention', 'MatMul']
             )
             ret[basename] = export_file
-            os.remove(os.path.join(model_from, basename + '-opt.onnx'))
+            os.remove(os.path.join(model_from, basename + '.onnx'))
         return ret
