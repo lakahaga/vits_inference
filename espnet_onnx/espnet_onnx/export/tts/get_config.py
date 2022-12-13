@@ -42,7 +42,7 @@ def get_tokenizer_config(model, path):
 
 def get_preprocess_config(model, path):
     ret = {}
-    if model.text_cleaner is not None:
+    if model.text_cleaner is not None and len(model.text_cleaner.cleaner_types)>0:
         ret.update({'text_cleaner': {
                 'cleaner_types': model.text_cleaner.cleaner_types[0]
         }})
