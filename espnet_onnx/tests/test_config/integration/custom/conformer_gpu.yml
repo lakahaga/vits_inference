@@ -1,0 +1,28 @@
+tag_name: conformer_gpu
+optimization:
+  CPU:
+    encoder:
+      RelativeShift: 1
+  Quantize:
+    encoder:
+      RelativeShift: 1
+  GPU:
+    encoder:
+      RelativeShift: 1
+use_ort_for_espnet: true
+check_optimize:
+  - encoder
+check_export:
+  - encoder
+  - decoder
+  - ctc
+  - lm
+device: 
+  - CPU
+  - Quantize
+  - GPU
+model_config:
+  asr_train_config: /home/circleci/espnet_onnx/tests/test_config/integration/model_config/cfm_ctc_att.yaml
+  use_transducer: false
+  use_lm: true
+  lm_train_config: /home/circleci/espnet_onnx/tests/test_config/integration/model_config/transformer_lm.yaml

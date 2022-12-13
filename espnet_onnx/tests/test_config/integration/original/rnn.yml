@@ -1,0 +1,14 @@
+tag_name: rnn
+optimization:
+  CPU:
+  Quantize:
+use_ort_for_espnet: false
+check_optimize: 
+check_export:
+  - encoder
+  - decoder
+  - predecoder_0
+  - ctc
+device:
+  - CPU
+  - Quantize

@@ -1,0 +1,9 @@
+numpy
+onnxruntime
+librosa
+sentencepiece
+typeguard
+pyyaml
+g2p_en
+jamo
+espnet_tts_frontend
