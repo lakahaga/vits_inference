@@ -3,3 +3,5 @@ espnet
 onnx
 espnet_model_zoo
 g2pk
+tritonclient[all]
+triton
