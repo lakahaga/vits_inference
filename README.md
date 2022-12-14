@@ -13,7 +13,7 @@ Triton Inference time : 0.33419392816722393
 ```
 
 ## Exported Models
-* You can download models [here](https://drive.google.com/drive/folders/1VUvmA3K3T8QuW1RkGWSz2xin2j1ZefSq?usp=share_link)
+* You can download models [here](https://sogang365-my.sharepoint.com/:f:/g/personal/lakahaga_o365_sogang_ac_kr/ErIEGeXHq4ZMk1fZICilGgcB1YgWA4k3ArUy_rIv_WL91Q?e=pETg5i)
 * `model_vits` : original VITS model trained with Espnet
 * `export_dir` : onnx exported models
 * `onnx_model` : directory for triton server
