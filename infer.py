@@ -1,5 +1,6 @@
 import time
 
+# io related
 import re
 import soundfile as sf
 import kaldiio
@@ -10,6 +11,13 @@ import numpy as np
 
 import onnxruntime
 from espnet2.bin.tts_inference import Text2Speech
+
+# Trition related
+import tritongrpcclient
+import tritongrpcclient.model_config_pb2 as mc
+import tritonhttpclient
+from tritonclientutils import triton_to_np_dtype
+from tritonclientutils import InferenceServerException
 
 
 class EspnetInfer(object):
@@ -104,9 +112,34 @@ class OnnxInfer(object):
             return False, f"Not equal to tolerance rtol={0.001}, atol={1e-05}"
         return True, "Onnx output is equal to torch output with tolerance rtol={0.001}, atol={1e-05}"
 
+class TritionInfer(object):
+    def __init__(self, url, model_name, model_version, verbose):
+        self.client = tritonhttpclient.InferenceServerClient(url=url, verbose=verbose)
+        self.model_metadata = self.client.get_model_metadata(model_name=model_name, model_version=model_version)
+        self.model_config = self.client.get_model_config(model_name=model_name, model_version=model_version)
+        self.model_version = model_version
+        self.model_name = model_name
+
+
+    def infer(self, input_ids, speaker_embedding):
+        input0 = tritonhttpclient.InferInput('text',  shape=input_ids.shape, datatype='INT64')
+        input0.set_data_from_numpy(input_ids, binary_data=False)
+        input1 = tritonhttpclient.InferInput('spembs', shape=speaker_embedding.shape, datatype='FP32')
+        input1.set_data_from_numpy(speaker_embedding, binary_data=False)
+
+        output0 = tritonhttpclient.InferRequestedOutput('wav', binary_data=False)
+        output1 = tritonhttpclient.InferRequestedOutput('att_w', binary_data=False)
+        output2 = tritonhttpclient.InferRequestedOutput('dur', binary_data=False)
+        start =time.perf_counter()
+        response = self.client.infer(self.model_name, model_version=self.model_version, inputs=[input0, input1], outputs=[output0, output1, output2])
+        infer_time = time.perf_counter() - start
+        print(f"Triton Inference time : {infer_time}")
+        wav = response.as_numpy('wav')
+        return wav
+
 if __name__ =="__main__":
 
-    runner = EspnetInfer(checkpoint_path="vits_model/273epoch.pth", speaker_embedding='vits_model/spk_xvector.ark')
+    runner = EspnetInfer(checkpoint_path="model_vits/273epoch.pth", speaker_embedding='model_vits/spk_xvector.ark')
     kwargs = {'speaker' : "s101_annie_angry"}
     torch_output = runner.infer("안녕하세요", 'sample.wav', **kwargs)
 
@@ -127,3 +160,8 @@ if __name__ =="__main__":
     print("Compare two torch output")
     is_valid, msg = onnx_runner.compare_with_torch(torch_output, torch_output2)
     print(msg)
+
+    print("Trinton inference")
+    runner = TritionInfer(url='127.0.0.1:8000', model_name='korean_vits', model_version='1', verbose=False)
+    wav = runner.infer(input_ids, speaker_embedding)
+    sf.write("triton_output.wav", wav, samplerate=22050, format='WAV', subtype='PCM_16')
