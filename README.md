@@ -1,6 +1,10 @@
 # vits_inference
 한국어 VITS 모델 optimize 및 inference server porting
 
+## Inference Environment
+* `GPU` : V100 32GB
+* `CUDA` : 11.3
+
 ## Result
 ```shell
 Espnet Inference time: 0.3507644236087799
