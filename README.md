@@ -1,6 +1,10 @@
 # vits_inference
 한국어 VITS 모델 optimize 및 inference server porting
 
+## How to run
+* You can use `run.sh` to run the whole project from environment setup to model exporting.
+* You should enter your ngc api key to `ngc_login.sh` before download triton server image.
+
 ## Inference Environment
 * `GPU` : V100 32GB
 * `CUDA` : 11.3
